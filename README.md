@@ -6,17 +6,16 @@ Code and data for reproducing the main results of **TipAD**.
 
 ```
 src/tipad/
-  predictor.py             dual-path predictor (attention slow head, conv fast head)
-  criticality_estimator.py state-space identification -> Kalman filter -> NIS ->
-                           persistence/burst decomposition -> criticality score
-  fusion.py                rank normalization + self-gated softmax
-  model.py                 wires the three modules above into TipAD end to end
-  config.py                TipADConfig (frozen hyperparameters)
-  data.py                  TSB-AD-M loading / preprocessing
+├── predictor.py              dual-path predictor (attention slow head, conv fast head)
+├── criticality_estimator.py  state-space ID -> Kalman filter -> persistence/burst -> criticality score
+├── fusion.py                 rank normalization + self-gated softmax
+├── model.py                  wires the three modules above into TipAD end to end
+├── config.py                 TipADConfig (frozen hyperparameters)
+└── data.py                   TSB-AD-M loading / preprocessing
 
 experiments/
-  run_tipad.py         train (select fusion on Tuning) + evaluate on Eval
-  compare_baselines.py rank against the official TSB-AD baselines/leaderboard
+├── run_tipad.py          train (select fusion on Tuning) + evaluate on Eval
+└── compare_baselines.py  rank against the official TSB-AD baselines/leaderboard
 
 data/       TSB-AD-M file lists + official baseline scores (see data/README.md)
 figures/    architecture diagram
@@ -28,7 +27,7 @@ figures/    architecture diagram
 
 We reformulate an anomaly as a crossing, the system’s departure from its stable state. Inspired by this, we propose **TipAD**, a multivariate anomaly detection method. 
 
-## Results
+## Overall Comparison
 
 ![TipAD Main_experiment result](figures/Main_experiment.png)
 
