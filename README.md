@@ -1,6 +1,6 @@
 # TipAD
 
-We reformulate an anomaly as a crossing, the system’s departure from its stable state. Inspired by this, we propose *TipAD*, a multivariate anomaly detection method. 
+Code and data for reproducing the main results of **TipAD**.
 
 ## Repository Layout
 
@@ -26,7 +26,7 @@ figures/    architecture diagram
 
 ![TipAD architecture](figures/Overview.png)
 
-Dual-path predictor -> Kalman-filter-based criticality estimator -> adaptive fusion.
+We reformulate an anomaly as a crossing, the system’s departure from its stable state. Inspired by this, we propose **TipAD**, a multivariate anomaly detection method. 
 
 ## Results
 
