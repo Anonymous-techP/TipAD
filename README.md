@@ -6,19 +6,19 @@ Code and data for reproducing the main results of **TipAD**.
 
 ```
 src/tipad/
-├── predictor.py              dual-path predictor (attention slow head, conv fast head)
-├── criticality_estimator.py  state-space ID -> Kalman filter -> persistence/burst -> criticality score
-├── fusion.py                 rank normalization + self-gated softmax
-├── model.py                  wires the three modules above into TipAD end to end
-├── config.py                 TipADConfig (frozen hyperparameters)
-└── data.py                   TSB-AD-M loading / preprocessing
+├── predictor.py              
+├── criticality_estimator.py  
+├── fusion.py                 
+├── model.py                  
+├── config.py                 
+└── data.py                   
 
 experiments/
-├── run_tipad.py          train (select fusion on Tuning) + evaluate on Eval
-└── compare_baselines.py  rank against the official TSB-AD baselines/leaderboard
+├── run_tipad.py          train + evaluate on TSB-AD-M
+└── compare_baselines.py  rank against official baselines
 
 data/       TSB-AD-M file lists + official baseline scores (see data/README.md)
-figures/    architecture diagram
+figures/    architecture + results figures
 ```
 
 ## Architecture
