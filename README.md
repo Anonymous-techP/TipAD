@@ -1,6 +1,6 @@
 # TipAD
 
-Code for the paper *TipAD*, a multivariate time-series anomaly detection method.
+We reformulate an anomaly as a crossing, the system’s departure from its stable state. Inspired by this, we propose *TipAD*, a multivariate anomaly detection method. 
 
 ## Repository Layout
 
