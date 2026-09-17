@@ -24,7 +24,7 @@ figures/    architecture diagram
 
 ## Architecture
 
-![TipAD architecture](figures/overview.png)
+![TipAD architecture](figures/Overview.png)
 
 Dual-path predictor -> Kalman-filter-based criticality estimator -> adaptive fusion.
 
