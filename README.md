@@ -33,7 +33,7 @@ We reformulate an anomaly as a crossing, the system’s departure from its stabl
 
 ## Data
 
-TipAD is evaluated on **TSB-AD-M**, the multivariate track of TSB-AD~\citep{liu2024elephant}. The raw dataset file is too large for GitHub and must be downloaded separately.
+TipAD is evaluated on **TSB-AD-M**, the multivariate track of TSB-AD. The raw dataset file is too large for GitHub and must be downloaded separately.
 
 Download [TSB-AD-M.zip](https://www.thedatum.org/datasets/TSB-AD-M.zip) and unzip it into `data/`, giving `data/TSB-AD-M/`.
 
