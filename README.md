@@ -55,7 +55,7 @@ pip install -r requirements.txt
 
 ## Reproducing the Main Results
 
-We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB RAM, CPU only, no GPU (see Appendix B). All computation is deterministic, so the scores you get will match the paper on any machine, only the runtime changes with hardware.
+We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB RAM, CPU only, no GPU (see Appendix B).
 
 | step | what it does |
 |---|---|
@@ -63,6 +63,16 @@ We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB R
 | `eval` | freezes those and scores every series in TSB-AD-M-Eva |
 | `compare_baselines` | reproduces the paper's Avg.RANK table against the official baselines |
 
+
+For a fully automated run (train, both seeds, averaging, and the final
+comparison table), execute:
+
+```bash
+bash run_all.sh
+```
+
+This uses every CPU core available and can still take a long time on the full 200-series eval set — see below for what each step does and how to
+run it manually.
 
 ### 1. Train
 
