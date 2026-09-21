@@ -44,7 +44,7 @@ class TipADConfig:
     ode_substeps: int = 4
 
     # ---- Adaptive fusion ----
-    fuse: str = "softmax"              # "softmax" | "resid" | "nis_kf2" | "rankmax"
+    fuse: str = "softmax"              # "softmax" | "resid" | "nis_kf2" 
     fusion_kappa: float = 2.0          # kappa: self-gated softmax sharpness
 
 
