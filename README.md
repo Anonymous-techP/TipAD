@@ -31,6 +31,14 @@ We reformulate an anomaly as a crossing, the system’s departure from its stabl
 
 ![TipAD Main_experiment result](figures/Main_experiment.png)
 
+## Data
+
+TipAD is evaluated on **TSB-AD-M**, the multivariate track of TSB-AD~\citep{liu2024elephant}. The raw dataset file is too large for GitHub and must be downloaded separately.
+
+Download [TSB-AD-M.zip](https://www.thedatum.org/datasets/TSB-AD-M.zip) and unzip it into `data/`, giving `data/TSB-AD-M/`.
+
+> If this link doesn't work, the same link is published on the official [TSB-AD repository], check there for the current download location.
+
 ## Setup
 
 ```bash
