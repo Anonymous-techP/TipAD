@@ -56,11 +56,12 @@ pip install -r requirements.txt
 ## Reproducing the Main Results
 
 ```bash
+
 cd experiments
 python3 run_tipad.py --phase train
 python3 run_tipad.py --phase eval
 python3 compare_baselines.py
-```
+
 
 | step | what it does |
 |---|---|
