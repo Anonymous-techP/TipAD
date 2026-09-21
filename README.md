@@ -55,7 +55,7 @@ pip install -r requirements.txt
 
 ## Reproducing the Main Results
 
-```bash
+```text
 cd experiments
 python3 run_tipad.py --phase train
 python3 run_tipad.py --phase eval
