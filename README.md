@@ -58,16 +58,15 @@ pip install -r requirements.txt
 ```bash
 cd experiments
 python3 run_tipad.py --phase train
-python3 run_tipad.py --phase eval --shard 0 --nshards 1
+python3 run_tipad.py --phase eval
 python3 compare_baselines.py
 ```
 
 | step | what it does |
 |---|---|
-| `train` | selects the fusion mode and softmax sharpness kappa on TSB-AD-M-Tuning |
+| `train` | selects the fusion mode and softmax on TSB-AD-M-Tuning |
 | `eval` | freezes those and scores every series in TSB-AD-M-Eva |
 | `compare_baselines` | reproduces the paper's Avg.RANK table against the official baselines |
 
-`--nshards` splits `eval` across parallel processes (each with its own
-`--shard`); run `--phase merge` afterward to combine them.
+
 
