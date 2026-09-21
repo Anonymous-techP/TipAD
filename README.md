@@ -64,15 +64,15 @@ We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB R
 | `compare_baselines` | reproduces the paper's Avg.RANK table against the official baselines |
 
 
-For a fully automated run (train, both seeds, averaging, and the final
-comparison table), execute:
+### Quick Start
+
+To run the whole pipeline in one go — training, both seeds, averaging, and the final comparison table — run:
 
 ```bash
 bash run_all.sh
 ```
 
-This uses every CPU core available and can still take a long time on the full 200-series eval set — see below for what each step does and how to
-run it manually.
+This uses all available CPU cores. On the full 200-series evaluation set it can still take a while. See below for what each step does and how to run them manually.
 
 ### 1. Train
 
