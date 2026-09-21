@@ -75,26 +75,29 @@ python3 run_tipad.py --phase train
 
 #### Option A — single process (simplest, can take several hours):
 
+```text
 python3 run_tipad.py --phase eval
-
+```
 
 #### Option B — parallel (faster): open N terminals in experiments/ and run
 
 one shard in each (N = number of CPU cores is a reasonable choice), e.g. for N=4:
-
+```text
 python3 run_tipad.py --phase eval --shard 0 --nshards 4   # terminal 1
 python3 run_tipad.py --phase eval --shard 1 --nshards 4   # terminal 2
 python3 run_tipad.py --phase eval --shard 2 --nshards 4   # terminal 3
 python3 run_tipad.py --phase eval --shard 3 --nshards 4   # terminal 4
-
+```
 #### Once all N finish, combine them:
 
+```text
 python3 run_tipad.py --phase merge
-
+```
 ### 3. Compare against the baselines
 
+```text
 python3 compare_baselines.py
-
+```
 
 
 
