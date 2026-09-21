@@ -17,7 +17,7 @@ experiments/
 ├── run_tipad.py          train + evaluate on TSB-AD-M
 └── compare_baselines.py  rank against official baselines
 
-data/       TSB-AD-M file lists + official baseline scores (see data/README.md)
+data/       TSB-AD-M file lists + official baseline scores
 figures/    architecture + results figures
 ```
 
@@ -44,8 +44,6 @@ Download [TSB-AD-M.zip](https://www.thedatum.org/datasets/TSB-AD-M.zip) and unzi
 ```bash
 pip install -r requirements.txt
 ```
-
-Download the TSB-AD-M series pool into `data/` — see `data/README.md`.
 
 ## Reproducing the Main Results
 
