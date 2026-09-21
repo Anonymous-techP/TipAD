@@ -37,7 +37,7 @@ TipAD is evaluated on **TSB-AD-M**, the multivariate track of TSB-AD. The raw da
 
 Download [TSB-AD-M.zip](https://www.thedatum.org/datasets/TSB-AD-M.zip) and unzip it into `data/`, giving `data/TSB-AD-M/`.
 
-> If this link doesn't work, the same link is published on the official [TSB-AD repository], check there for the current download location.
+> If this link doesn't work, the same link is published on the official TSB-AD repository, check there for the current download location.
 
 ## Setup
 
