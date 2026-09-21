@@ -17,7 +17,15 @@ experiments/
 ├── run_tipad.py          train + evaluate on TSB-AD-M
 └── compare_baselines.py  rank against official baselines
 
-data/       TSB-AD-M file lists + official baseline scores
+data/
+├── File_List/                        
+│   ├── TSB-AD-M-Tuning.csv           tuning — hyperparameter selection only
+│   └── TSB-AD-M-Eva.csv              eval
+└── benchmark_results/                
+    ├── multi_mergedTable_VUS-PR.csv  official VUS-PR, 30 classical baselines
+    └── leaderboard/
+        └── Multi_*.csv               official VUS-PR, recent SOTA baselines
+
 figures/    architecture + results figures
 ```
 
