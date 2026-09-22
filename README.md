@@ -60,9 +60,11 @@ We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB R
 ### Quick start
 
 ```bash
-nohup bash run_all.sh > run.log 2>&1 &
+nohup bash run_all.sh > run.log 2>&1 < /dev/null &
+disown 2>/dev/null
 tail -f run.log
 ```
+
 
 That's the whole procedure. A preflight report prints immediately (detected memory, CPU count, whether the requested workers fit), followed by per-series training progress. Once you see that, the environment is set up correctly, and you can leave the run unattended.
 
