@@ -1,15 +1,7 @@
 #!/bin/bash
 # Reproduces the TipAD results: train -> eval (seeds 2023 & 2024) -> average
 # -> compare against the official baselines. Prints the Avg.RANK table.
-#
-#   bash run_all.sh        # 4 parallel workers (default)
-#   bash run_all.sh 2      # fewer workers, for machines with less RAM
-#   bash run_all.sh 1      # serial
-#
-# Results do NOT depend on the number of workers: the predictor re-seeds before
-# every series, so any setting produces identical numbers. Workers only change
-# how long the run takes. Finished series are cached in eval_arrays_s<seed>/,
-# so an interrupted run can simply be restarted.
+
 set -e
 cd "$(dirname "$0")/experiments"
 
