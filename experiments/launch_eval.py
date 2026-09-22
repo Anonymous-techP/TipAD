@@ -5,9 +5,33 @@ measures the actual per-series memory cost on this machine, then schedules shard
 Killed shards are retried at lower concurrency.
 
 """
-import argparse, os, subprocess, sys, time
+import argparse, os, signal, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+_CHILDREN = set()          # live shard processes, so a signal can take them down
+
+
+def _stop_children(signum, _frame):
+    """Terminate every shard we started, then exit.
+
+    Without this, killing the launcher leaves its shard processes orphaned and
+    still holding several GB each -- the caller would have to hunt them down
+    with pkill.
+    """
+    for p in list(_CHILDREN):
+        try:
+            p.terminate()
+        except Exception:
+            pass
+    for p in list(_CHILDREN):
+        try:
+            p.wait(timeout=10)
+        except Exception:
+            try:
+                p.kill()
+            except Exception:
+                pass
+    sys.exit(130)
 POOL = os.path.join(HERE, "..", "data", "TSB-AD-M")
 EVAL_LIST = os.path.join(HERE, "..", "data", "File_List", "TSB-AD-M-Eva.csv")
 GB = 1 << 30
@@ -64,6 +88,30 @@ def cpu_limit():
         return len(os.sched_getaffinity(0))          # respects taskset/cpuset
     except AttributeError:
         return os.cpu_count() or 1
+
+
+# --------------------------------------------------------------- data check
+def check_data():
+    """Fail fast if the series pool is missing.
+
+    Without this the run "succeeds": every series raises FileNotFoundError,
+    the per-series handler swallows it as a skip, and the merge step produces
+    an empty result -- which looks like a reproduction failure rather than a
+    missing download.
+    """
+    missing = [p for p in (POOL, EVAL_LIST) if not os.path.exists(p)]
+    if missing:
+        sys.exit(
+            "\nERROR: the TSB-AD-M series pool was not found:\n"
+            + "".join(f"  {os.path.normpath(m)}\n" for m in missing)
+            + "\nDownload TSB-AD-M.zip from https://www.thedatum.org/datasets/TSB-AD-M.zip\n"
+              "and unzip it into data/, giving data/TSB-AD-M/. See the README.")
+    n = len([f for f in os.listdir(POOL) if f.endswith(".csv")])
+    if n < 200:
+        sys.exit(f"\nERROR: {os.path.normpath(POOL)} holds only {n} .csv files; "
+                 f"200 are expected.\nThe download may be incomplete -- re-extract "
+                 f"TSB-AD-M.zip into data/.")
+    print(f"  series pool                 : {n} files  OK")
 
 
 # ------------------------------------------------------------------- repair
@@ -152,13 +200,15 @@ def run(seed, shard_ids, nshards, budget_bytes, per_proc_bytes, dry=False):
     while todo or running:
         while todo and len(running) < slots:
             i = todo.pop(0)
-            running[subprocess.Popen(
+            proc = subprocess.Popen(
                 [sys.executable, "run_tipad.py", "--phase", "eval",
                  "--seed", str(seed), "--shard", str(i),
-                 "--nshards", str(nshards)], cwd=HERE)] = i
+                 "--nshards", str(nshards)], cwd=HERE)
+            _CHILDREN.add(proc)
+            running[proc] = i
         time.sleep(1.0)
         for p in [p for p in running if p.poll() is not None]:
-            i = running.pop(p)
+            i = running.pop(p); _CHILDREN.discard(p)
             if p.returncode == -9:                   # SIGKILL == OOM killer
                 print(f"  !! shard {i} OOM-killed; requeuing at lower concurrency",
                       flush=True)
@@ -186,6 +236,7 @@ def main():
     a = ap.parse_args()
 
     if a.check:
+        check_data()
         repair_cache()
         lim, use = memory_limit_bytes(), memory_in_use_bytes()
         av = lim - use - int(a.reserve_gb * GB)
@@ -290,6 +341,10 @@ def main():
     else:
         sys.exit("FATAL: shards still failing after 4 attempts.")
     print("\nall shards complete.", flush=True)
+
+
+if __name__ == "__main__":
+    main()
 
 
 if __name__ == "__main__":
