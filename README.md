@@ -62,9 +62,15 @@ nohup bash run_all.sh > run.log 2>&1 &
 tail -f run.log
 ```
 
-That's the whole procedure. A preflight report prints immediately (detected memory, CPU count, whether the requested workers fit), followed by per-series training progress. Once you see that, the environment is set up correctly and you can leave the run unattended.
+That's the whole procedure. A preflight report prints immediately (detected memory, CPU count, whether the requested workers fit), followed by per-series training progress. Once you see that, the environment is set up correctly, and you can leave the run unattended.
 
 The run finishes by printing the Avg.RANK comparison table. Results are written to `experiments/eval_merged.csv` (this is the file the paper reports), alongside the per-seed `experiments/eval_merged_s2023.csv` and `experiments/eval_merged_s2024.csv`.
+
+**Workers do not change the results**, only how long the run takes.
+
+**Interrupted runs resume safely.** Cache writes are atomic, so stopping the run
+at any point never corrupts it. Re-running the same command picks up where it
+left off; series already computed (cached in `eval_arrays_s<seed>/`) are skipped.
 
 
 ### Choosing the number of workers
@@ -78,15 +84,9 @@ The run finishes by printing the Avg.RANK comparison table. Results are written 
 | 4       | ~10 GB     | >6 h    | default, 16 GB and up |
 | 8       | ~20 GB     | ~6h     | 24 GB and up |
 
-```bash
-bash run_all.sh 8
-```
-
 Measured on the reference platform: Apple M3 (8 cores, 4 performance + 4 efficiency), 24 GB RAM, MacBook Air (Mac15,12), CPU only, no GPU used.
 
-Workers do not change the results, only how long the run takes.
 
-Interrupted runs resume safely. Stopping the run at any point never corrupts it. Re-running the same command picks up where it left off, series already computed (cached in `eval_arrays_s<seed>/`) are skipped.
 
 ### Running each phase manually
 
@@ -101,29 +101,41 @@ python3 run_tipad.py --phase train
 
 #### 2. Evaluate 
 
-##### Option A — single process (simplest, can take several hours):
+**Option A — single process** Results are merged automatically when the run finishes, so no separate merge step is needed:
 
-```text
-python3 run_tipad.py --phase eval
+```bash
+python3 run_tipad.py --phase eval --seed 2023
+python3 run_tipad.py --phase eval --seed 2024
 ```
 
-##### Option B — parallel (faster): open N terminals in experiments/ and run
+**Option B — sharded** (faster). Split a seed into N shards, run them
+concurrently, then merge
 
-one shard in each (N = number of CPU cores is a reasonable choice), e.g. for N=4:
-```text
-python3 run_tipad.py --phase eval --shard 0 --nshards 4   # terminal 1
-python3 run_tipad.py --phase eval --shard 1 --nshards 4   # terminal 2
-python3 run_tipad.py --phase eval --shard 2 --nshards 4   # terminal 3
-python3 run_tipad.py --phase eval --shard 3 --nshards 4   # terminal 4
+```bash
+# seed 2023
+seq 0 3 | xargs -P 4 -I{} \
+  python3 run_tipad.py --phase eval --seed 2023 --shard {} --nshards 4
+python3 run_tipad.py --phase merge --seed 2023
+
+# seed 2024
+seq 0 3 | xargs -P 4 -I{} \
+  python3 run_tipad.py --phase eval --seed 2024 --shard {} --nshards 4
+python3 run_tipad.py --phase merge --seed 2024
 ```
-##### Once all N finish, combine them:
 
-```text
-python3 run_tipad.py --phase merge
+#### 3. Average the two seeds
+
+Writes `eval_merged.csv`, the file the paper reports.
+
+```bash
+python3 average_seeds.py 2023 2024
 ```
-#### 3. Compare against the baselines
 
-```text
+#### 4. Compare against the baselines
+
+Reads `eval_merged.csv` and prints the Avg.RANK table.
+
+```bash
 python3 compare_baselines.py
 ```
 
