@@ -51,7 +51,7 @@ def train():
             if data.shape[1] > DIM_CAP or label.sum() == 0 or tr < 5 or tr >= len(data) - 100:
                 continue
             Z = D.preprocess(data, tr, "zscore")
-            s = M.signals(Z, tr, cfg)
+            s = M.signals(Z, tr, cfg, tag=f"[tuning] {fn[:26]}")
             if s is None:
                 continue
             sw = find_length_rank(data[:, 0].reshape(-1, 1), rank=1)
@@ -80,21 +80,25 @@ def train():
     print(f"\nfrozen -> fuse={bmode}, kappa={bkappa}, Tuning VUS-PR={res[best]:.4f}\nDONE_TRAIN", flush=True)
 
 
-def evaluate(shard=0, nshards=1):
+def evaluate(shard=0, nshards=1, seed=None):
     fz = json.load(open(BEST))["cfg"]
     cfg = TipADConfig(**{k: v for k, v in fz.items() if k in TipADConfig.__dataclass_fields__})
+    if seed is not None:
+        cfg.seed = seed
     mode, kappa = fz["fuse"], float(fz["fusion_kappa"])
+    suf = "" if seed is None else f"_s{seed}"
+    arr_dir = ARR if seed is None else ARR + suf
 
-    os.makedirs(ARR, exist_ok=True)
-    csv = os.path.join(HERE, f"eval_shard{shard}.csv") if nshards > 1 else os.path.join(HERE, "eval.csv")
+    os.makedirs(arr_dir, exist_ok=True)
+    csv = os.path.join(HERE, f"eval_shard{shard}{suf}.csv") if nshards > 1 else os.path.join(HERE, f"eval{suf}.csv")
     done = set(pd.read_csv(csv)["file"]) if os.path.exists(csv) else set()
     rows = pd.read_csv(csv).to_dict("records") if os.path.exists(csv) else []
     files = [f for i, f in enumerate(load_list("eval")) if i % nshards == shard and f not in done]
-    print(f"[shard {shard}] fuse={mode} kappa={kappa} | {len(files)} series to go", flush=True)
+    print(f"[shard {shard}] fuse={mode} kappa={kappa} seed={cfg.seed} | {len(files)} series to go", flush=True)
 
     for fn in files:
         try:
-            pth = os.path.join(ARR, fn.replace(".csv", "") + ".npz"); sig = None
+            pth = os.path.join(arr_dir, fn.replace(".csv", "") + ".npz"); sig = None
             if os.path.exists(pth):
                 z = np.load(pth, allow_pickle=True)
                 sig = {"resid": z["resid"], "nis_kf2": z["nis_kf2"]}
@@ -104,34 +108,43 @@ def evaluate(shard=0, nshards=1):
                 if label.sum() == 0 or tr < 5:
                     continue
                 Z = D.preprocess(data, tr, "zscore")
-                s = M.signals(Z, tr, cfg)
+                s = M.signals(Z, tr, cfg, tag=f"[shard {shard}] {fn[:26]}")
                 if s is None:
                     print(f"[shard {shard}] skip {fn[:26]}: too short", flush=True)
                     continue
                 sig = {"resid": s["resid"], "nis_kf2": s["nis_kf2"]}
                 sw = find_length_rank(data[:, 0].reshape(-1, 1), rank=1)
-                np.savez(pth, label=label, sw=sw, **sig)
+                tmp = pth + ".part.npz"          # atomic: a killed process
+                np.savez(tmp, label=label, sw=sw, **sig)   # never leaves a
+                os.replace(tmp, pth)             # half-written cache file
             row = {"file": fn, "fam": fn.split("_")[1],
                    "fused": vus(M.fuse(sig["resid"], sig["nis_kf2"], mode, kappa), label, sw),
                    "nis_kf2": vus(sig["nis_kf2"], label, sw),
                    "R": vus(sig["resid"], label, sw)}
-            rows.append(row); pd.DataFrame(rows).to_csv(csv, index=False)
+            rows.append(row)
+            tmp_csv = csv + ".part"
+            pd.DataFrame(rows).to_csv(tmp_csv, index=False)
+            os.replace(tmp_csv, csv)
             print(f"[shard {shard}] {fn[:26]:26s} fused={row['fused']:.3f} "
                   f"(nis={row['nis_kf2']:.3f} R={row['R']:.3f})", flush=True)
         except Exception as e:
             print(f"[shard {shard}] skip {fn[:26]}: {e}", flush=True)
     print(f"[shard {shard}] DONE_SHARD", flush=True)
     if nshards == 1:
-        merge()
+        merge(seed)
 
 
-def merge():
-    parts = [os.path.join(HERE, f) for f in os.listdir(HERE) if f.startswith("eval_shard") and f.endswith(".csv")]
+def merge(seed=None):
+    suf = "" if seed is None else f"_s{seed}"
+    prefix, suffix = "eval_shard", f"{suf}.csv"
+    parts = [os.path.join(HERE, f) for f in os.listdir(HERE)
+              if f.startswith(prefix) and f.endswith(suffix) and f[len(prefix):-len(suffix)].isdigit()]
     if not parts:
-        parts = [os.path.join(HERE, "eval.csv")]
+        parts = [os.path.join(HERE, f"eval{suf}.csv")]
     df = pd.concat([pd.read_csv(p) for p in parts if os.path.exists(p)], ignore_index=True).drop_duplicates("file")
-    df.to_csv(os.path.join(HERE, "eval_merged.csv"), index=False)
-    print(f"merged {len(df)} series -> eval_merged.csv")
+    out_name = f"eval_merged{suf}.csv"
+    df.to_csv(os.path.join(HERE, out_name), index=False)
+    print(f"merged {len(df)} series -> {out_name}")
     for col in ("fused", "nis_kf2", "R"):
         print(f"  mean VUS-PR[{col}] = {df[col].mean():.4f}")
     print("DONE_MERGE")
@@ -142,10 +155,13 @@ if __name__ == "__main__":
     a.add_argument("--phase", choices=["train", "eval", "merge"], required=True)
     a.add_argument("--shard", type=int, default=0)
     a.add_argument("--nshards", type=int, default=1)
+    a.add_argument("--seed", type=int, default=None,
+                    help="override the frozen predictor seed for eval/merge "
+                         "(the paper's main results average seeds 2023 and 2024)")
     args = a.parse_args()
     if args.phase == "train":
         train()
     elif args.phase == "merge":
-        merge()
+        merge(args.seed)
     else:
-        evaluate(args.shard, args.nshards)
+        evaluate(args.shard, args.nshards, args.seed)
