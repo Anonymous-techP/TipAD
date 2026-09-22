@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""
-Resource-aware launcher for the TipAD evaluation phase. It discovers the real CPU/memory limits (cgroup-aware, so it is correct inside containers), 
-measures the actual per-series memory cost on this machine, then schedules shards under a memory budget instead of a fixed process count. 
-Killed shards are retried at lower concurrency.
+"""Resource-aware launcher for the TipAD evaluation phase.
+
+It discovers the real CPU/memory limits (cgroup-aware, so it is correct inside containers), 
+measures the actual per-series memory cost on this machine, 
+then schedules shards under a memory budget instead of a fixed process count. 
 
 """
 import argparse, os, signal, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+POOL = os.path.join(HERE, "..", "data", "TSB-AD-M")
+EVAL_LIST = os.path.join(HERE, "..", "data", "File_List", "TSB-AD-M-Eva.csv")
+GB = 1 << 30
+
 _CHILDREN = set()          # live shard processes, so a signal can take them down
 
 
@@ -32,9 +37,6 @@ def _stop_children(signum, _frame):
             except Exception:
                 pass
     sys.exit(130)
-POOL = os.path.join(HERE, "..", "data", "TSB-AD-M")
-EVAL_LIST = os.path.join(HERE, "..", "data", "File_List", "TSB-AD-M-Eva.csv")
-GB = 1 << 30
 
 
 # ---------------------------------------------------------------- detection
@@ -91,7 +93,7 @@ def cpu_limit():
 
 
 # --------------------------------------------------------------- data check
-def check_data():
+def check_data(verbose=True):
     """Fail fast if the series pool is missing.
 
     Without this the run "succeeds": every series raises FileNotFoundError,
@@ -111,7 +113,8 @@ def check_data():
         sys.exit(f"\nERROR: {os.path.normpath(POOL)} holds only {n} .csv files; "
                  f"200 are expected.\nThe download may be incomplete -- re-extract "
                  f"TSB-AD-M.zip into data/.")
-    print(f"  series pool                 : {n} files  OK")
+    if verbose:
+        print(f"  series pool                 : {n} files  OK")
 
 
 # ------------------------------------------------------------------- repair
@@ -234,6 +237,8 @@ def main():
     ap.add_argument("--quick", action="store_true", help="6-series smoke test")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    signal.signal(signal.SIGINT, _stop_children)
+    signal.signal(signal.SIGTERM, _stop_children)
 
     if a.check:
         check_data()
@@ -257,6 +262,9 @@ def main():
         return
     if a.seed is None:
         sys.exit("--seed is required unless --check is given")
+
+    check_data(verbose=False)      # already reported by run_all.sh's preflight
+    repair_cache(a.seed)
 
     limit, used = memory_limit_bytes(), memory_in_use_bytes()
     avail = max(GB, limit - used - int(a.reserve_gb * GB))
@@ -345,4 +353,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
