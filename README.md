@@ -79,9 +79,9 @@ The run finishes by printing the Avg.RANK comparison table. Results are written 
 
 | Workers | RAM needed | Runtime | Suitable for |
 |--------:|-----------:|--------:|--------------|
-| 1       | ~3 GB      | far longer than 6 hours   | any machine, also used to verify determinism |
-| 2       | ~5 GB      | well over 6 hours   | 8 GB laptops |
-| 4       | ~10 GB     | >6 h    | default, 16 GB and up |
+| 1       | ~3 GB      | far longer than 6 hours   | any machine |
+| 2       | ~5 GB      | well over 6 hours   | 8 GB |
+| 4       | ~10 GB     | >6 h    | 16 GB and up |
 | 8       | ~20 GB     | ~6h     | 24 GB and up |
 
 Measured on the reference platform: Apple M3 (8 cores, 4 performance + 4 efficiency), 24 GB RAM, MacBook Air (Mac15,12), CPU only, no GPU used.
