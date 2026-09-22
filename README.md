@@ -57,6 +57,8 @@ pip install -r requirements.txt
 
 We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB RAM, CPU only, no GPU (see Appendix B).
 
+### Quick start
+
 ```bash
 nohup bash run_all.sh > run.log 2>&1 &
 tail -f run.log
