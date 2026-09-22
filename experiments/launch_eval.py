@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
-"""Resource-aware launcher for the TipAD evaluation phase.
+"""
+Resource-aware launcher for the TipAD evaluation phase. It discovers the real CPU/memory limits (cgroup-aware, so it is correct inside containers), 
+measures the actual per-series memory cost on this machine, then schedules shards under a memory budget instead of a fixed process count. 
+Killed shards are retried at lower concurrency.
 
-Replaces the fixed `-P $(nproc)` fan-out in run_all.sh. It discovers the real
-CPU/memory limits (cgroup-aware, so it is correct inside containers), measures
-the actual per-series memory cost on this machine, then schedules shards under
-a memory budget instead of a fixed process count. Killed shards are retried at
-lower concurrency; completed work is never redone (it is cached in eval_arrays*).
-
-Usage:
-    python3 launch_eval.py --seed 2023
-    python3 launch_eval.py --seed 2023 --quick        # 6-series smoke test
-    python3 launch_eval.py --seed 2023 --dry-run      # print the plan only
 """
 import argparse, os, subprocess, sys, time
 
