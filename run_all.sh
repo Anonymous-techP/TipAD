@@ -3,6 +3,7 @@
 # -> compare against the official baselines. Prints the Avg.RANK table.
 
 set -e
+trap 'kill 0' INT TERM      # stop every descendant, not just this script
 cd "$(dirname "$0")/experiments"
 
 WORKERS="${1:-4}"
