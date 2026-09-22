@@ -70,9 +70,7 @@ The run finishes by printing the Avg.RANK comparison table. Results are written 
 
 **Workers do not change the results**, only how long the run takes.
 
-**Interrupted runs resume safely.** Cache writes are atomic, so stopping the run
-at any point never corrupts it. Re-running the same command picks up where it
-left off; series already computed (cached in `eval_arrays_s<seed>/`) are skipped.
+**Interrupted runs resume safely.** Stopping the run at any point never corrupts it. Re-running the same command picks up where it left off; series already computed (cached in `eval_arrays_s<seed>/`) are skipped.
 
 
 ### Choosing the number of workers
