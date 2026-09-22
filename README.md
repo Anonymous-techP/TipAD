@@ -58,8 +58,8 @@ pip install -r requirements.txt
 We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB RAM, CPU only, no GPU (see Appendix B).
 
 ```bash
-   nohup bash run_all.sh > run.log 2>&1 &
-    tail -f run.log
+nohup bash run_all.sh > run.log 2>&1 &
+tail -f run.log
 ```
 
 That's the whole procedure. A preflight report prints immediately (detected memory, CPU count, whether the requested workers fit), followed by per-series training progress. Once you see that, the environment is set up correctly and you can leave the run unattended.
@@ -78,8 +78,8 @@ The run finishes by printing the Avg.RANK comparison table. Results are written 
 | 4       | ~10 GB     | >6 h    | default, 16 GB and up |
 | 8       | ~20 GB     | ~6h     | 24 GB and up |
 
-```bash  
-    bash run_all.sh 8
+```bash
+bash run_all.sh 8
 ```
 
 Measured on the reference platform: Apple M3 (8 cores, 4 performance + 4 efficiency), 24 GB RAM, MacBook Air (Mac15,12), CPU only, no GPU used.
