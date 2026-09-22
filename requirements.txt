@@ -1,5 +1,5 @@
-numpy>=1.24.3,<2.0     # tsb-ad 要求 numpy<2.0,保持一致,pip 才能干净解析
+numpy>=1.24.3,<2.0     
 pandas>=2.0.3
 scipy>=1.10
 torch>=2.0
-tsb-ad                 # 提供 TSB_AD.evaluation.metrics 和 utils.slidingWindows(run_tipad.py 用)
+tsb-ad                 
