@@ -57,14 +57,14 @@ pip install -r requirements.txt
 
 We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB RAM, CPU only, no GPU (see Appendix B).
 
-```text
+```bash
    nohup bash run_all.sh > run.log 2>&1 &
     tail -f run.log
 ```
 
 That's the whole procedure. A preflight report prints immediately (detected memory, CPU count, whether the requested workers fit), followed by per-series training progress. Once you see that, the environment is set up correctly and you can leave the run unattended.
 
-The run finishes by printing the Avg.RANK comparison table. Results are written to `experiments/eval_merged.csv` (the two seeds averaged, this is the file the paper reports), alongside the per-seed `experiments/eval_merged_s2023.csv` and `experiments/eval_merged_s2024.csv`.
+The run finishes by printing the Avg.RANK comparison table. Results are written to `experiments/eval_merged.csv` (this is the file the paper reports), alongside the per-seed `experiments/eval_merged_s2023.csv` and `experiments/eval_merged_s2024.csv`.
 
 
 ### Choosing the number of workers
@@ -73,12 +73,12 @@ The run finishes by printing the Avg.RANK comparison table. Results are written 
 
 | Workers | RAM needed | Runtime | Suitable for |
 |--------:|-----------:|--------:|--------------|
-| 1       | ~3 GB      | ~>>>6 h   | any machine, also used to verify determinism |
-| 2       | ~5 GB      | ~>>6 h   | 8 GB laptops |
+| 1       | ~3 GB      | far longer than 6 hours   | any machine, also used to verify determinism |
+| 2       | ~5 GB      | well over 6 hours   | 8 GB laptops |
 | 4       | ~10 GB     | >6 h    | default, 16 GB and up |
 | 8       | ~20 GB     | ~6h     | 24 GB and up |
 
-```text  
+```bash  
     bash run_all.sh 8
 ```
 
