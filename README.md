@@ -57,27 +57,38 @@ pip install -r requirements.txt
 
 We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB RAM, CPU only, no GPU (see Appendix B).
 
+   nohup bash run_all.sh > run.log 2>&1 &
+    tail -f run.log
+
+That's the whole procedure. A preflight report prints immediately (detected memory, CPU count, whether the requested workers fit), followed by per-series training progress. Once you see that, the environment is set up correctly and you can leave the run unattended.
+
+The run finishes by printing the Avg.RANK comparison table. Results are written to `experiments/eval_merged.csv` (the two seeds averaged, this is the file the paper reports), alongside the per-seed `experiments/eval_merged_s2023.csv` and `experiments/eval_merged_s2024.csv`.
+
+
+
 ### Choosing the number of workers
 
 `run_all.sh` takes the number of parallel workers as its only argument (default 4). Pick the largest row your machine can satisfy:
 
 | Workers | RAM needed | Runtime | Suitable for |
 |--------:|-----------:|--------:|--------------|
-| 1       | ~3 GB      | ~XX h   | any machine  |
-| 2       | ~5 GB      | ~XX h   | 8 GB laptops |
-| **4**   | **~10 GB** | **XX h XX min** | **16 GB and up** |
-| 8       | ~20 GB     | ~XX h   | 32 GB |
+| 1       | ~3 GB      | ~28 h   | any machine, also used to verify determinism |
+| 2       | ~5 GB      | ~14 h   | 8 GB laptops |
+| 4       | ~10 GB     | ~8 h    | default, 16 GB and up |
+| 8       | ~20 GB     | X h Y min | 24 GB and up |
 
+    
+    bash run_all.sh 8
 
-### Quick Start
+Measured on the reference platform: Apple M3 (8 cores, 4 performance + 4 efficiency), 24 GB RAM, MacBook Air (Mac15,12), CPU only, no GPU used.
 
-To run the whole pipeline in one go — training, both seeds, averaging, and the final comparison table — run:
+Workers do not change the results, only how long the run takes.
 
-```bash
-bash run_all.sh
-```
+Interrupted runs resume safely. Stopping the run at any point never corrupts it. Re-running the same command picks up where it left off, series already computed (cached in `eval_arrays_s<seed>/`) are skipped.
 
-This uses all available CPU cores. On the full 200-series evaluation set it can still take a while. See below for what each step does and how to run them manually.
+### Running each phase manually
+
+If you'd rather control each phase yourself, or to parallelize by hand instead of letting `run_all.sh` manage workers. See below for what each step does and how to run them manually.
 
 ### 1. Train
 
