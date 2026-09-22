@@ -5,6 +5,8 @@ Code and data for reproducing the main results of **TipAD**.
 ## Repository Layout
 
 ```
+run_all.sh                    one-command pipeline: train -> eval -> average -> compare
+
 src/tipad/
 ├── predictor.py              
 ├── criticality_estimator.py  
@@ -14,8 +16,10 @@ src/tipad/
 └── data.py                   
 
 experiments/
-├── run_tipad.py          train + evaluate on TSB-AD-M
-└── compare_baselines.py  rank against official baselines
+├── run_tipad.py              train / eval / merge phases
+├── launch_eval.py            resource-aware scheduler for the eval phase
+├── average_seeds.py          averages seeds 2023 and 2024 into eval_merged.csv
+└── compare_baselines.py      ranks TipAD against the official baselines
 
 data/
 ├── File_List/                        
