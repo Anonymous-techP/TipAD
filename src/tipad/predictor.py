@@ -81,11 +81,13 @@ def causal_ema(X, a):
     return out
 
 
-def forecast(Z, tr, cfg, infer_chunk=2048):
+def forecast(Z, tr, cfg, infer_chunk=2048, tag=""):
     """Train the dual-path predictor on the normal prefix [0, tr), then predict
     over the full sequence. Z: (T,N) standardized. Returns (x_hat_slow, x_hat_fast),
     both (T,N); the first L steps are filled with the target components (residual 0).
-    Returns None if the training prefix is too short."""
+    Returns None if the training prefix is too short. If `tag` is given, prints
+    periodic epoch progress (useful for long series, whose predictor training can
+    otherwise run silently for minutes)."""
     T, N = Z.shape
     L = cfg.seq_len
     n_train = tr - L
@@ -110,12 +112,14 @@ def forecast(Z, tr, cfg, infer_chunk=2048):
     opt = torch.optim.Adam(m.parameters(), lr=cfg.predictor_lr)
     mse = nn.MSELoss()
     m.train()
-    for _ in range(cfg.predictor_epochs):
+    for ep in range(cfg.predictor_epochs):
         opt.zero_grad()
         xs, xf = m(Xb)
         loss = mse(xs + xf, Yb) + cfg.w_aux * (mse(xs, Ys) + mse(xf, Yf))
         loss.backward()
         opt.step()
+        if tag and (ep + 1) % 10 == 0:
+            print(f"{tag} epoch {ep + 1}/{cfg.predictor_epochs} loss={loss.item():.4f}", flush=True)
 
     m.eval()
     xs_full = Zsm.copy().astype(np.float32)
