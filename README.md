@@ -57,11 +57,16 @@ pip install -r requirements.txt
 
 We ran the experiments reported in the paper on an Apple M3 (8-core CPU), 24GB RAM, CPU only, no GPU (see Appendix B).
 
-| step | what it does |
-|---|---|
-| `train` | selects the fusion mode and softmax on TSB-AD-M-Tuning |
-| `eval` | freezes those and scores every series in TSB-AD-M-Eva |
-| `compare_baselines` | reproduces the paper's Avg.RANK table against the official baselines |
+### Choosing the number of workers
+
+`run_all.sh` takes the number of parallel workers as its only argument (default 4). Pick the largest row your machine can satisfy:
+
+| Workers | RAM needed | Runtime | Suitable for |
+|--------:|-----------:|--------:|--------------|
+| 1       | ~3 GB      | ~XX h   | any machine  |
+| 2       | ~5 GB      | ~XX h   | 8 GB laptops |
+| **4**   | **~10 GB** | **XX h XX min** | **16 GB and up** |
+| 8       | ~20 GB     | ~XX h   | 32 GB |
 
 
 ### Quick Start
