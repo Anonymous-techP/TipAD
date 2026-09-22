@@ -6,13 +6,14 @@ from . import criticality_estimator as CE
 from .fusion import pct_rank, soft_max
 
 
-def signals(Z, tr, cfg):
+def signals(Z, tr, cfg, tag=""):
     """Z: (T,N) standardized observations. tr: normal-prefix length.
-    Returns dict(resid, nis_kf2) or None if the training prefix is too short."""
+    Returns dict(resid, nis_kf2) or None if the training prefix is too short.
+    `tag`, if given, is forwarded to the predictor for periodic epoch progress."""
     L = cfg.seq_len
     if tr - L < 8:
         return None
-    out_f = predictor.forecast(Z, tr, cfg)
+    out_f = predictor.forecast(Z, tr, cfg, tag=tag)
     if out_f is None:
         return None
     xs, xf = out_f
