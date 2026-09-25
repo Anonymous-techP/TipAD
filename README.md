@@ -45,9 +45,9 @@ We reformulate an anomaly as a crossing, the system’s departure from its stabl
 
 ## Data
 
-TipAD is evaluated on **TSB-AD-M**, the multivariate track of TSB-AD. The raw dataset file is too large for GitHub and must be downloaded separately.
+TipAD is evaluated on **TSB-AD-M**, the multivariate track of the public TSB-AD benchmark. The raw dataset file is too large for GitHub and must be downloaded separately from the benchmark's public site.
 
-Download [TSB-AD-M.zip](https://www.thedatum.org/datasets/TSB-AD-M.zip) and unzip it into `data/`, giving `data/TSB-AD-M/`.
+Download [TSB-AD-M.zip](https://www.thedatum.org/datasets/TSB-AD-M.zip) and unzip it into `data/`, creating `data/TSB-AD-M/`.
 
 > If this link doesn't work, search for the TSB-AD benchmark (NeurIPS 2024) for the current download location.
 
